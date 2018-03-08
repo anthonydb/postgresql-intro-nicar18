@@ -2,7 +2,10 @@
 -- NICAR 2018 Chicago
 
 -- Table creation and data import statements
-
+-- Note: You must update the file path in the COPY statements
+-- to match the location on your computer where you have
+-- placed the data files.
+-- Also, note the command-line shapefile import at the bottom.
 
 
 -- CENSUS DATA TABLES AND Import
@@ -215,7 +218,11 @@ SET geog_point = ST_SetSRID(
 
 CREATE INDEX market_pts_idx ON farmers_markets USING GIST (geog_point);
 
+-- Final step: To run some of the spatial queries, you must import
+-- a shapefile via the command line: us_counties_2010_shp
 
--- Importing a shapefile via the command line: us_counties_2010_shp
+-- The command belowcan be run at the command line to do this. You will need
+-- to have set up your environment to recognize PostgreSQL command line tools
+-- at your system path.
 
 -- shp2pgsql -I -s 4269 -W Latin1 tl_2010_us_county10.shp us_counties_2010_shp | psql -d nicar_demo -U postgres
