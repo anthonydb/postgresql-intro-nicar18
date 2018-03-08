@@ -144,27 +144,27 @@ WHERE ST_Within('SRID=4269;POINT(-87.6375298 41.8958031)'::geometry, geom);
 -- | (OR)
 -- ! (NOT)
 
--- Listing 13-15: Converting text to tsvector data
+-- Converting text to tsvector data
 
 SELECT to_tsvector('I am walking across the sitting room to sit with you.');
 
--- Listing 13-16: Converting search terms to tsquery data
+-- Converting search terms to tsquery data
 
 SELECT to_tsquery('walking & sitting');
 
--- Listing 13-17: Querying a tsvector type with a tsquery
+-- Querying a tsvector type with a tsquery
 
 SELECT to_tsvector('I am walking across the sitting room') @@ to_tsquery('walking & sitting');
 
 SELECT to_tsvector('I am walking across the sitting room') @@ to_tsquery('walking & running');
 
--- Listing 13-21: Finding speeches containing the word "Vietnam"
+-- Finding speeches containing the word "Vietnam"
 SELECT president, speech_date
 FROM president_speeches
 WHERE search_speech_text @@ to_tsquery('Vietnam')
 ORDER BY speech_date;
 
--- Listing 13-22: Displaying search results with ts_headline()
+-- Displaying search results with ts_headline()
 
 SELECT president,
        speech_date,
@@ -177,7 +177,7 @@ SELECT president,
 FROM president_speeches
 WHERE search_speech_text @@ to_tsquery('Vietnam');
 
--- Listing 13-24: Find speeches where "defense" follows "military"
+-- Find speeches where "defense" follows "military"
 
 SELECT president,
        speech_date,
@@ -190,7 +190,7 @@ SELECT president,
 FROM president_speeches
 WHERE search_speech_text @@ to_tsquery('military <-> defense');
 
--- Listing 13-25: Scoring relevance with ts_rank()
+-- Scoring relevance with ts_rank()
 
 SELECT president,
        speech_date,
@@ -201,7 +201,7 @@ WHERE search_speech_text @@ to_tsquery('war & security & threat & enemy')
 ORDER BY score DESC
 LIMIT 5;
 
--- Listing 13-26: Normalizing ts_rank() by speech length
+-- Normalizing ts_rank() by speech length
 
 SELECT president,
        speech_date,
