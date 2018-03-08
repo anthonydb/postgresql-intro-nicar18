@@ -221,7 +221,7 @@ CREATE INDEX market_pts_idx ON farmers_markets USING GIST (geog_point);
 -- Final step: To run some of the spatial queries, you must import
 -- a shapefile via the command line: us_counties_2010_shp
 
--- The command belowcan be run at the command line to do this. You will need
+-- The command below can be run at the command line to do this. You will need
 -- to have set up your environment to recognize PostgreSQL command line tools
 -- at your system path.
 
