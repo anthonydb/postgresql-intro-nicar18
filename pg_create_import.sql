@@ -1,6 +1,12 @@
+-- PostgreSQL Hands-On
+-- NICAR 2018 Chicago
+
+-- Table creation and data import statements
+
+
 
 -- CENSUS DATA TABLES AND Import
--- acs_2011_2015_stats
+-- Census American Community Survey stats: acs_2011_2015_stats
 
 CREATE TABLE acs_2011_2015_stats (
     geoid varchar(14) CONSTRAINT geoid_key PRIMARY KEY,
@@ -14,10 +20,10 @@ CREATE TABLE acs_2011_2015_stats (
 );
 
 COPY acs_2011_2015_stats
-FROM 'C:\Users\Anthony\Desktop\NICAR18\acs_2011_2015_stats.csv'
+FROM 'C:\Users\Your_Name\Desktop\postgresql-intro-nicar18\data\acs_2011_2015_stats.csv'
 WITH (FORMAT CSV, HEADER, DELIMITER ',');
 
--- us_counties_2000
+-- Decennial U.S. Census counties 2000: us_counties_2000
 
 CREATE TABLE us_counties_2000 (
     geo_name varchar(90),              -- County/state name,
@@ -39,11 +45,11 @@ CREATE TABLE us_counties_2000 (
 );
 
 COPY us_counties_2000
-FROM 'C:\Users\Anthony\Desktop\NICAR18\us_counties_2000.csv'
+FROM 'C:\Users\Your_Name\Desktop\postgresql-intro-nicar18\data\us_counties_2000.csv'
 WITH (FORMAT CSV, HEADER);
 
 
--- us_counties_2010
+-- Decennial U.S. Census counties: us_counties_2010
 
 CREATE TABLE us_counties_2010 (
     geo_name varchar(90),                    -- Name of the geography
@@ -152,11 +158,12 @@ CREATE TABLE us_counties_2010 (
 
 -- Import
 COPY us_counties_2010
-FROM 'C:\Users\Anthony\Desktop\NICAR18\us_counties_2010.csv'
+FROM 'C:\Users\Your_Name\Desktop\postgresql-intro-nicar18\data\us_counties_2010.csv'
 WITH (FORMAT CSV, HEADER);
 
 -- FULL-TEXT SEARCH
--- president_speeches
+
+-- State of the Union addresses: president_speeches
 
 CREATE TABLE president_speeches (
     sotu_id serial PRIMARY KEY,
@@ -168,7 +175,7 @@ CREATE TABLE president_speeches (
 );
 
 COPY president_speeches (president, title, speech_date, speech_text)
-FROM 'C:\Users\Anthony\Desktop\NICAR18\sotu-1946-1977.csv'
+FROM 'C:\Users\Your_Name\Desktop\postgresql-intro-nicar18\data\sotu-1946-1977.csv'
 WITH (FORMAT CSV, DELIMITER '|', HEADER OFF, QUOTE '@');
 
 UPDATE president_speeches
@@ -176,10 +183,11 @@ SET search_speech_text = to_tsvector('english', speech_text);
 
 CREATE INDEX search_idx ON president_speeches USING gin(search_speech_text);
 
+
 -- GIS DATA
 CREATE EXTENSION postgis;
 
--- farmers_markets
+-- U.S. farmers markets: farmers_markets
 
 CREATE TABLE farmers_markets (
     fmid bigint PRIMARY KEY,
@@ -195,20 +203,19 @@ CREATE TABLE farmers_markets (
 );
 
 COPY farmers_markets
-FROM 'C:\Users\Anthony\Desktop\NICAR18\farmers_markets.csv'
+FROM 'C:\Users\Your_Name\Desktop\postgresql-intro-nicar18\data\farmers_markets.csv'
 WITH (FORMAT CSV, HEADER);
 
 ALTER TABLE farmers_markets ADD COLUMN geog_point geography(POINT,4326);
 
--- Now fill that column with the lat/long
 UPDATE farmers_markets
 SET geog_point = ST_SetSRID(
                             ST_MakePoint(longitude,latitude),4326
                            )::geography;
 
--- Add a GiST index
 CREATE INDEX market_pts_idx ON farmers_markets USING GIST (geog_point);
 
--- SHAPEFILE IMPORT FROM COMMAND LINE: us_counties_2010_shp
+
+-- Importing a shapefile via the command line: us_counties_2010_shp
 
 -- shp2pgsql -I -s 4269 -W Latin1 tl_2010_us_county10.shp us_counties_2010_shp | psql -d nicar_demo -U postgres
