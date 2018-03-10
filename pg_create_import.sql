@@ -2,10 +2,16 @@
 -- NICAR 2018 Chicago
 
 -- Table creation and data import statements
--- Note: You must update the file path in the COPY statements
--- to match the location on your computer where you have
--- placed the data files.
--- Also, note the command-line shapefile import at the bottom.
+
+-- Notes:
+
+-- * You must have PostgreSQL installed and the PostGIS extension enabled on
+-- your database. Visit those projects' websites for installation instructions.
+
+-- * You must update the file path in the COPY statements to match the location
+-- on your computer where you have placed the data files.
+
+-- * Note the command-line shapefile import step at the bottom of this file.
 
 
 -- CENSUS DATA TABLES AND Import
