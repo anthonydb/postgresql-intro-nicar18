@@ -6,6 +6,8 @@
 
 -- 1. SELECT statement (2010 Decennial Census data)
 
+-- This is a basic SQL query that uses ANSI SQL syntax that's portable across
+-- most major database systems.
 SELECT geo_name,
        state_us_abbreviation,
        p0010001 AS pop_2010
@@ -13,7 +15,8 @@ FROM us_counties_2010
 ORDER BY pop_2010 DESC
 LIMIT 10;
 
--- 2. Table join (2010 and 2000 Decennial Census data)
+-- 2. Table join (2010 and 2000 Decennial Census data). Again, this uses
+-- standard ANSI SQL syntax. We're just getting warmed up here.
 
 SELECT c2010.geo_name,
        c2010.state_us_abbreviation AS state,
@@ -22,8 +25,8 @@ SELECT c2010.geo_name,
 FROM us_counties_2010 c2010 INNER JOIN us_counties_2000 c2000
 ON c2010.state_fips = c2000.state_fips
    AND c2010.county_fips = c2000.county_fips;
-   
--- Let's calculate percent change in population
+
+-- Let's calculate percent change in population for each county.
 SELECT c2010.geo_name,
        c2010.state_us_abbreviation AS state,
        c2010.p0010001 AS pop_2010,
@@ -39,7 +42,12 @@ ORDER BY pct_change DESC;
 -- 2. Stats Functions
 -- ------------------
 
--- Five-year Census ACS data (2011-2015)
+-- PostgreSQL implements a number of stats functions that can give you a
+-- quick read on relationships between variables in your data. Here, we
+-- use two: corr() and regr_r2.
+
+-- We have a table of calculated percentages from five-year Census American
+-- Community Survey data (2011-2015).
 SELECT *
 FROM acs_2011_2015_stats;
 
@@ -66,13 +74,20 @@ FROM acs_2011_2015_stats;
 
 
 -- 3. Spatial Queries with PostGIS
+-- -------------------------------
 
--- Farmers markets in the U.S.
+-- The PostGIS extension provides spatial data types and functions to let you
+-- perform calculations including distance, intersection, area, and much more.
+
+-- We'll start with data on farmers markets in the U.S.
 -- https://catalog.data.gov/dataset/farmers-markets-geographic-data
 -- https://www.ams.usda.gov/local-food-directories/farmersmarkets
 
+-- The data has longitude and latitude coordinates for each market, which I
+-- have converted into a PostGIS geography data type.
 SELECT * FROM farmers_markets;
 
+-- Distance
 -- Using ST_DWithin() to locate farmers' markets within 10 kilometers of
 -- downtown Des Moines, Iowa
 
@@ -93,7 +108,8 @@ SELECT ST_Distance(
                    ST_GeogFromText('POINT(-73.8480153 40.7570917)')
                    ) / 1609.344 AS mets_to_yanks;
 
--- Using ST_Distance() for each row in farmers_markets
+-- Using ST_Distance() for each row in farmers_markets to show how far each
+-- is from the downtown market.
 
 SELECT market_name,
        city,
@@ -108,15 +124,17 @@ WHERE ST_DWithin(geog_point,
                  10000)
 ORDER BY miles_from_dt ASC;
 
--- Working with shapefiles
--- Find the largest counties by area using ST_Area()
-
+-- Shapefiles (the ESRI standard for spatial data)
+-- We've imported a shapefile with the shape of each U.S. county
 SELECT * FROM us_counties_2010_shp;
 
+-- You can see the type of geometry in the shapefile with this:
 SELECT ST_AsText(geom)
 FROM us_counties_2010_shp
 LIMIT 1;
 
+-- Area calculations
+-- Find the largest counties by area using ST_Area()
 SELECT name10,
        statefp10 AS st,
        round(
@@ -126,7 +144,8 @@ FROM us_counties_2010_shp
 ORDER BY square_miles DESC
 LIMIT 5;
 
--- Listing 14-16: Find the county belonging to a pair of coordinates with ST_Within()
+-- Locate which county a point falls in.
+-- Use ST_Within() and a pair of coordinates
 
 SELECT name10,
        statefp10
@@ -137,28 +156,27 @@ WHERE ST_Within('SRID=4269;POINT(-87.6375298 41.8958031)'::geometry, geom);
 -- 4. Full text search
 -- -------------------
 
--- FULL TEXT SEARCH
-
 -- Full-text search operators:
 -- & (AND)
 -- | (OR)
 -- ! (NOT)
 
--- Converting text to tsvector data
+-- Converting text to tsvector data type
 
 SELECT to_tsvector('I am walking across the sitting room to sit with you.');
 
--- Converting search terms to tsquery data
+-- Converting search terms to tsquery data type
 
 SELECT to_tsquery('walking & sitting');
 
--- Querying a tsvector type with a tsquery
+-- Querying a tsvector type with a tsquery using the @@ operator
 
 SELECT to_tsvector('I am walking across the sitting room') @@ to_tsquery('walking & sitting');
 
 SELECT to_tsvector('I am walking across the sitting room') @@ to_tsquery('walking & running');
 
 -- Finding speeches containing the word "Vietnam"
+
 SELECT president, speech_date
 FROM president_speeches
 WHERE search_speech_text @@ to_tsquery('Vietnam')
@@ -178,6 +196,7 @@ FROM president_speeches
 WHERE search_speech_text @@ to_tsquery('Vietnam');
 
 -- Find speeches where "defense" follows "military"
+-- Note that because the search uses lexemes it also finds plurals of the words
 
 SELECT president,
        speech_date,
@@ -206,7 +225,7 @@ LIMIT 5;
 SELECT president,
        speech_date,
        ts_rank(search_speech_text,
-               to_tsquery('war & security & threat & enemy'), 2)::numeric 
+               to_tsquery('war & security & threat & enemy'), 2)::numeric
                AS score
 FROM president_speeches
 WHERE search_speech_text @@ to_tsquery('war & security & threat & enemy')
@@ -248,5 +267,3 @@ ON c2010.state_fips = c2000.state_fips
    AND c2010.county_fips = c2000.county_fips
 ORDER BY pct_chg_func DESC
 LIMIT 5;
-
-
