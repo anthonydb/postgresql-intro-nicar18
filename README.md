@@ -3,7 +3,7 @@
 ## Description
 In this session, we cover some lesser-known but incredibly useful features of PostgreSQL, a free, open-source relational database system named 2017 DBMS of the Year by DB-Engines. You’ll learn how to analyze spatial data with PostGIS, automate tasks with triggers, create functions (which can use languages such as Python and R), and discover PostgreSQL’s powerful full-text search engine.
 
-This repo includes data, sample queries, and a PDF of slides. The material is drawn from the more advanced chapters of this author's book [Practical SQL](https://www.nostarch.com/practicalsql). You can find all the code examples and data for the book [here](https://github.com/anthonydb/practical-sql).
+This repo includes data, sample queries, and a [PDF of slides](https://github.com/anthonydb/postgresql-intro-nicar18/blob/master/NICAR-2018-PostgreSQL.pdf). The material is drawn from the more advanced chapters of this author's book [Practical SQL](https://www.nostarch.com/practicalsql). You can find all the code examples and data for the book [here](https://github.com/anthonydb/practical-sql).
 
 ## Topics
 * A few basic queries
